@@ -131,13 +131,15 @@ const DataTable = () => {
   };
 
   return (
-    <div className="overflow-x-auto">
-      <h1 className="text-7xl font-semibold text-center mt-10 text-gray-800 mb-6">
+    <div className="overflow-x-auto p-4">
+      <h1 className="text-4xl md:text-7xl font-semibold text-center mt-10 text-gray-800 mb-6">
         Trade Data Table
       </h1>
 
-      <div className="mb-6 flex justify-between items-center">
-        <label className="text-3xl text-gray-700">Rows per page:</label>
+      <div className="mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <label className="text-xl md:text-3xl text-gray-700">
+          Rows per page:
+        </label>
         <select
           value={rowsPerPage}
           onChange={handleRowsPerPageChange}
@@ -146,7 +148,10 @@ const DataTable = () => {
           <option value={20}>20</option>
           <option value={40}>40</option> {/*  pagination form */}
           <option value={50}>50</option>
-          <option value={data.length}>All</option>
+          <option value={100}>100</option>
+          <option value={200}>200</option>
+          <option value={300}>300</option>
+          <option value={400}>400</option>
         </select>
 
         <button

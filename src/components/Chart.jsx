@@ -8,13 +8,14 @@ const App = () => {
   const [selectedTradeCode, setSelectedTradeCode] = useState("");
   const [chartInstance, setChartInstance] = useState(null);
   const [pieChartInstance, setPieChartInstance] = useState(null);
-  //fetch all the stocks from db
+
+  // Fetch all the stocks from db
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await fetch(
           "https://stock-market-backend-fpzz.onrender.com/stocks"
-        ); // Update with your API endpoint
+        );
         const jsonData = await response.json();
         setData(jsonData);
 
@@ -31,21 +32,19 @@ const App = () => {
 
   useEffect(() => {
     if (!data.length || !selectedTradeCode) return;
-    //sort by date
+
     const filteredData = data
       .filter((item) => item.trade_code === selectedTradeCode)
       .sort((a, b) => new Date(a.date) - new Date(b.date));
 
     const labels = filteredData.map((item) => item.date);
     const closeValues = filteredData.map((item) => parseFloat(item.close));
-    // discrad anything than number using regex
     const volumeValues = filteredData.map((item) =>
       parseFloat(item.volume.replace(/,/g, ""))
     );
 
-    // Calculate the stock price changes: Increase, Decrease, No Change
     const priceChanges = filteredData.map((item, index) => {
-      if (index === 0) return "No Change"; // No previous data for the first element
+      if (index === 0) return "No Change";
       const prevClose = parseFloat(filteredData[index - 1].close);
       const currentClose = parseFloat(item.close);
       if (currentClose > prevClose) return "Increase";
@@ -53,7 +52,6 @@ const App = () => {
       return "No Change";
     });
 
-    // Count the occurrences of Increase, Decrease, No Change
     const priceChangeCounts = {
       Increase: priceChanges.filter((change) => change === "Increase").length,
       Decrease: priceChanges.filter((change) => change === "Decrease").length,
@@ -64,7 +62,6 @@ const App = () => {
     if (chartInstance) chartInstance.destroy();
     if (pieChartInstance) pieChartInstance.destroy();
 
-    // Create the Bar Chart for stock data
     const ctx = document.getElementById("myChart").getContext("2d");
     const newChart = new Chart(ctx, {
       type: "bar",
@@ -92,6 +89,7 @@ const App = () => {
       },
       options: {
         responsive: true,
+        maintainAspectRatio: false,
         scales: {
           y: {
             position: "left",
@@ -115,7 +113,6 @@ const App = () => {
     });
     setChartInstance(newChart);
 
-    // Create the Pie Chart for price changes
     const pieCtx = document
       .getElementById("priceChangePieChart")
       .getContext("2d");
@@ -134,6 +131,10 @@ const App = () => {
             hoverOffset: 4,
           },
         ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
       },
     });
     setPieChartInstance(newPieChart);
@@ -157,11 +158,11 @@ const App = () => {
         ))}
       </select>
 
-      <div className="flex w-full max-w-6xl space-x-8">
-        <div className="flex-1 bg-white shadow-lg rounded-lg p-6">
+      <div className="flex flex-col md:flex-row w-full max-w-6xl space-y-8 md:space-y-0 md:space-x-8">
+        <div className="flex-1 bg-white shadow-lg rounded-lg p-6 h-96">
           <canvas id="myChart"></canvas>
         </div>
-        <div className="flex-1 bg-white shadow-lg rounded-lg p-6">
+        <div className="flex-1 bg-white shadow-lg rounded-lg p-6 h-96">
           <canvas id="priceChangePieChart"></canvas>
         </div>
       </div>

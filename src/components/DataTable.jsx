@@ -17,9 +17,9 @@ const DataTable = () => {
     close: "",
     volume: "",
   });
-
+  //fetching from backend
   useEffect(() => {
-    fetch("http://localhost:8000/stocks") // Assuming My FastAPI server is running locally
+    fetch("https://stock-market-backend-fpzz.onrender.com/stocks") // Assuming My FastAPI server is running locally
       .then((response) => response.json())
       .then((jsonData) => setData(jsonData));
   }, []);
@@ -27,17 +27,20 @@ const DataTable = () => {
   const handleEdit = (index) => {
     setEditIndex(index);
   };
-
+  //api request for update
   const handleSave = (index) => {
     // PUT request to update stock data
     const updatedStock = data[index];
-    fetch(`http://localhost:8000/stocks/${updatedStock.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(updatedStock),
-    })
+    fetch(
+      `https://stock-market-backend-fpzz.onrender.com/stocks/${updatedStock.id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedStock),
+      }
+    )
       .then((response) => response.json())
       .then((updatedData) => {
         const updatedDataList = [...data];
@@ -48,9 +51,9 @@ const DataTable = () => {
 
     setEditIndex(null);
   };
-
+  //make trade code uneditable
   const handleChange = (e, index, key) => {
-    if (key === "trade_code") return; // Make Trade Code uneditable
+    if (key === "trade_code") return;
     const updatedData = [...data];
     updatedData[index][key] = e.target.value;
     setData(updatedData);
@@ -60,7 +63,7 @@ const DataTable = () => {
     setRowsPerPage(parseInt(e.target.value));
     setCurrentPage(1);
   };
-
+  //handle pagination requested by the user
   const totalPages = Math.ceil(data.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
   const currentData = data.slice(startIndex, startIndex + rowsPerPage);
@@ -69,12 +72,15 @@ const DataTable = () => {
     setShowDeleteModal(true);
     setDeleteIndex(index);
   };
-
+  //delete api call
   const confirmDelete = () => {
     const stockToDelete = data[deleteIndex];
-    fetch(`http://localhost:8000/stocks/${stockToDelete.id}`, {
-      method: "DELETE",
-    })
+    fetch(
+      `https://stock-market-backend-fpzz.onrender.com/stocks/${stockToDelete.id}`,
+      {
+        method: "DELETE",
+      }
+    )
       .then(() => {
         const updatedData = data.filter((_, index) => index !== deleteIndex);
         setData(updatedData);
@@ -83,12 +89,12 @@ const DataTable = () => {
       })
       .catch((error) => console.error("Error deleting stock:", error));
   };
-
+  //handle cancel request of delete a entry
   const cancelDelete = () => {
     setShowDeleteModal(false);
     setDeleteIndex(null);
   };
-
+  //toogle add new entry between visible and not visible
   const handleAddNew = () => {
     setShowForm(true);
   };
@@ -96,10 +102,10 @@ const DataTable = () => {
   const handleFormChange = (e) => {
     setNewEntry({ ...newEntry, [e.target.name]: e.target.value });
   };
-
+  //api call of nadd new entry
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    fetch("http://localhost:8000/stocks", {
+    fetch("https://stock-market-backend-fpzz.onrender.com/stocks", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -138,7 +144,7 @@ const DataTable = () => {
           className="border border-gray-300 rounded p-2 text-lg"
         >
           <option value={20}>20</option>
-          <option value={40}>40</option>
+          <option value={40}>40</option> {/*  pagination form */}
           <option value={50}>50</option>
           <option value={data.length}>All</option>
         </select>
@@ -180,6 +186,8 @@ const DataTable = () => {
       <table className="min-w-full border-collapse bg-white shadow-md rounded-lg overflow-hidden">
         <thead>
           <tr className="bg-gray-200">
+            {" "}
+            {/*table header*/}
             {[
               "Date",
               "Trade Code",
@@ -210,6 +218,7 @@ const DataTable = () => {
             >
               {Object.keys(row).map((key) => (
                 <td key={key} className="py-3 px-4">
+                  {/*make trade code and id assinged by db uneditable*/}
                   {editIndex === index &&
                   key !== "trade_code" &&
                   key !== "id" ? (
@@ -251,7 +260,7 @@ const DataTable = () => {
         </tbody>
       </table>
 
-      {showDeleteModal && (
+      {showDeleteModal /*delet model */ && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-8 rounded-lg shadow-lg">
             <p className="text-xl mb-4">

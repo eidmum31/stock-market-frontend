@@ -8,11 +8,13 @@ const App = () => {
   const [selectedTradeCode, setSelectedTradeCode] = useState("");
   const [chartInstance, setChartInstance] = useState(null);
   const [pieChartInstance, setPieChartInstance] = useState(null);
-
+  //fetch all the stocks from db
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("http://localhost:8000/stocks"); // Update with your API endpoint
+        const response = await fetch(
+          "https://stock-market-backend-fpzz.onrender.com/stocks"
+        ); // Update with your API endpoint
         const jsonData = await response.json();
         setData(jsonData);
 
@@ -29,13 +31,14 @@ const App = () => {
 
   useEffect(() => {
     if (!data.length || !selectedTradeCode) return;
-
+    //sort by date
     const filteredData = data
       .filter((item) => item.trade_code === selectedTradeCode)
       .sort((a, b) => new Date(a.date) - new Date(b.date));
 
     const labels = filteredData.map((item) => item.date);
     const closeValues = filteredData.map((item) => parseFloat(item.close));
+    // discrad anything than number using regex
     const volumeValues = filteredData.map((item) =>
       parseFloat(item.volume.replace(/,/g, ""))
     );

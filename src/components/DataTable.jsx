@@ -9,17 +9,17 @@ const DataTable = () => {
   const [deleteIndex, setDeleteIndex] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [newEntry, setNewEntry] = useState({
-    Date: "",
-    "Trade Code": "",
-    High: "",
-    Low: "",
-    Open: "",
-    Close: "",
-    Volume: "",
+    date: "",
+    trade_code: "",
+    high: "",
+    low: "",
+    open: "",
+    close: "",
+    volume: "",
   });
 
   useEffect(() => {
-    fetch("stock_market_data.json")
+    fetch("http://localhost:8000/stocks") // Assuming My FastAPI server is running locally
       .then((response) => response.json())
       .then((jsonData) => setData(jsonData));
   }, []);
@@ -28,12 +28,29 @@ const DataTable = () => {
     setEditIndex(index);
   };
 
-  const handleSave = () => {
+  const handleSave = (index) => {
+    // PUT request to update stock data
+    const updatedStock = data[index];
+    fetch(`http://localhost:8000/stocks/${updatedStock.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedStock),
+    })
+      .then((response) => response.json())
+      .then((updatedData) => {
+        const updatedDataList = [...data];
+        updatedDataList[index] = updatedData;
+        setData(updatedDataList);
+      })
+      .catch((error) => console.error("Error updating stock:", error));
+
     setEditIndex(null);
   };
 
   const handleChange = (e, index, key) => {
-    if (key === "Trade Code") return; // Make Trade Code uneditable
+    if (key === "trade_code") return; // Make Trade Code uneditable
     const updatedData = [...data];
     updatedData[index][key] = e.target.value;
     setData(updatedData);
@@ -54,10 +71,17 @@ const DataTable = () => {
   };
 
   const confirmDelete = () => {
-    const updatedData = data.filter((_, index) => index !== deleteIndex);
-    setData(updatedData);
-    setShowDeleteModal(false);
-    setDeleteIndex(null);
+    const stockToDelete = data[deleteIndex];
+    fetch(`http://localhost:8000/stocks/${stockToDelete.id}`, {
+      method: "DELETE",
+    })
+      .then(() => {
+        const updatedData = data.filter((_, index) => index !== deleteIndex);
+        setData(updatedData);
+        setShowDeleteModal(false);
+        setDeleteIndex(null);
+      })
+      .catch((error) => console.error("Error deleting stock:", error));
   };
 
   const cancelDelete = () => {
@@ -75,17 +99,29 @@ const DataTable = () => {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    setData([...data, newEntry]);
-    setShowForm(false);
-    setNewEntry({
-      Date: "",
-      "Trade Code": "",
-      High: "",
-      Low: "",
-      Open: "",
-      Close: "",
-      Volume: "",
-    });
+    fetch("http://localhost:8000/stocks", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newEntry),
+    })
+      .then((response) => response.json())
+      .then((addedData) => {
+        setData([...data, addedData]);
+        setShowForm(false);
+        console.log(setNewEntry);
+        setNewEntry({
+          date: "",
+          trade_code: "",
+          high: "",
+          low: "",
+          open: "",
+          close: "",
+          volume: "",
+        });
+      })
+      .catch((error) => console.error("Error adding stock:", error));
   };
 
   return (
@@ -152,6 +188,7 @@ const DataTable = () => {
               "Open",
               "Close",
               "Volume",
+              "ID",
               "Actions",
             ].map((header) => (
               <th
@@ -173,7 +210,9 @@ const DataTable = () => {
             >
               {Object.keys(row).map((key) => (
                 <td key={key} className="py-3 px-4">
-                  {editIndex === index && key !== "Trade Code" ? (
+                  {editIndex === index &&
+                  key !== "trade_code" &&
+                  key !== "id" ? (
                     <input
                       value={row[key]}
                       onChange={(e) => handleChange(e, index, key)}
@@ -187,7 +226,7 @@ const DataTable = () => {
               <td className="py-3 px-4 flex items-center space-x-2">
                 {editIndex === index ? (
                   <button
-                    onClick={handleSave}
+                    onClick={() => handleSave(index)}
                     className="bg-green-500 text-white py-1 px-3 rounded"
                   >
                     Save

@@ -12,7 +12,7 @@ const App = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("/stock_market_data.json");
+        const response = await fetch("http://localhost:8000/stocks"); // Update with your API endpoint
         const jsonData = await response.json();
         setData(jsonData);
 
@@ -20,7 +20,7 @@ const App = () => {
         const initialTradeCode = jsonData[0]?.trade_code;
         setSelectedTradeCode(initialTradeCode);
       } catch (error) {
-        console.error("Error loading data:", error);
+        console.error("Error fetching data:", error);
       }
     };
 
@@ -40,8 +40,28 @@ const App = () => {
       parseFloat(item.volume.replace(/,/g, ""))
     );
 
-    if (chartInstance) chartInstance.destroy();
+    // Calculate the stock price changes: Increase, Decrease, No Change
+    const priceChanges = filteredData.map((item, index) => {
+      if (index === 0) return "No Change"; // No previous data for the first element
+      const prevClose = parseFloat(filteredData[index - 1].close);
+      const currentClose = parseFloat(item.close);
+      if (currentClose > prevClose) return "Increase";
+      if (currentClose < prevClose) return "Decrease";
+      return "No Change";
+    });
 
+    // Count the occurrences of Increase, Decrease, No Change
+    const priceChangeCounts = {
+      Increase: priceChanges.filter((change) => change === "Increase").length,
+      Decrease: priceChanges.filter((change) => change === "Decrease").length,
+      "No Change": priceChanges.filter((change) => change === "No Change")
+        .length,
+    };
+
+    if (chartInstance) chartInstance.destroy();
+    if (pieChartInstance) pieChartInstance.destroy();
+
+    // Create the Bar Chart for stock data
     const ctx = document.getElementById("myChart").getContext("2d");
     const newChart = new Chart(ctx, {
       type: "bar",
@@ -90,53 +110,29 @@ const App = () => {
         },
       },
     });
-
     setChartInstance(newChart);
-  }, [data, selectedTradeCode]);
 
-  useEffect(() => {
-    if (!data.length || !selectedTradeCode) return;
-
-    const priceChanges = data
-      .filter((item) => item.trade_code === selectedTradeCode)
-      .map((item) => parseFloat(item.close));
-
-    const increases = priceChanges.filter(
-      (value, index, array) => value > array[index - 1]
-    );
-    const decreases = priceChanges.filter(
-      (value, index, array) => value < array[index - 1]
-    );
-    const noChange = priceChanges.filter(
-      (value, index, array) => value === array[index - 1]
-    );
-
-    if (pieChartInstance) pieChartInstance.destroy();
-
-    const pieCtx = document.getElementById("pieChart").getContext("2d");
+    // Create the Pie Chart for price changes
+    const pieCtx = document
+      .getElementById("priceChangePieChart")
+      .getContext("2d");
     const newPieChart = new Chart(pieCtx, {
       type: "pie",
       data: {
-        labels: ["Increases", "Decreases", "No Change"],
+        labels: ["Increase", "Decrease", "No Change"],
         datasets: [
           {
-            data: [increases.length, decreases.length, noChange.length],
-            backgroundColor: ["#34D399", "#EF4444", "#F59E0B"],
-            borderColor: "#fff",
-            borderWidth: 1,
+            data: [
+              priceChangeCounts.Increase,
+              priceChangeCounts.Decrease,
+              priceChangeCounts["No Change"],
+            ],
+            backgroundColor: ["#36A2EB", "#FF6384", "#FFCE56"],
+            hoverOffset: 4,
           },
         ],
       },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: "top",
-          },
-        },
-      },
     });
-
     setPieChartInstance(newPieChart);
   }, [data, selectedTradeCode]);
 
@@ -162,9 +158,8 @@ const App = () => {
         <div className="flex-1 bg-white shadow-lg rounded-lg p-6">
           <canvas id="myChart"></canvas>
         </div>
-
         <div className="flex-1 bg-white shadow-lg rounded-lg p-6">
-          <canvas id="pieChart"></canvas>
+          <canvas id="priceChangePieChart"></canvas>
         </div>
       </div>
     </div>

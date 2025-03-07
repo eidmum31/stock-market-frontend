@@ -1,0 +1,174 @@
+import React, { useEffect, useState } from "react";
+import { Chart, registerables } from "chart.js";
+
+Chart.register(...registerables);
+
+const App = () => {
+  const [data, setData] = useState([]);
+  const [selectedTradeCode, setSelectedTradeCode] = useState("");
+  const [chartInstance, setChartInstance] = useState(null);
+  const [pieChartInstance, setPieChartInstance] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("/stock_market_data.json");
+        const jsonData = await response.json();
+        setData(jsonData);
+
+        // Set initial trade code
+        const initialTradeCode = jsonData[0]?.trade_code;
+        setSelectedTradeCode(initialTradeCode);
+      } catch (error) {
+        console.error("Error loading data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (!data.length || !selectedTradeCode) return;
+
+    const filteredData = data
+      .filter((item) => item.trade_code === selectedTradeCode)
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    const labels = filteredData.map((item) => item.date);
+    const closeValues = filteredData.map((item) => parseFloat(item.close));
+    const volumeValues = filteredData.map((item) =>
+      parseFloat(item.volume.replace(/,/g, ""))
+    );
+
+    if (chartInstance) chartInstance.destroy();
+
+    const ctx = document.getElementById("myChart").getContext("2d");
+    const newChart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [
+          {
+            type: "line",
+            label: "Close Price",
+            data: closeValues,
+            borderColor: "#1D4ED8",
+            borderWidth: 3,
+            tension: 0.4,
+            yAxisID: "y",
+            fill: false,
+          },
+          {
+            type: "bar",
+            label: "Volume",
+            data: volumeValues,
+            backgroundColor: "rgba(75, 192, 192, 0.6)",
+            yAxisID: "y1",
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            position: "left",
+            title: {
+              display: true,
+              text: "Close Price (USD)",
+            },
+          },
+          y1: {
+            position: "right",
+            title: {
+              display: true,
+              text: "Volume",
+            },
+            grid: {
+              drawOnChartArea: false,
+            },
+          },
+        },
+      },
+    });
+
+    setChartInstance(newChart);
+  }, [data, selectedTradeCode]);
+
+  useEffect(() => {
+    if (!data.length || !selectedTradeCode) return;
+
+    const priceChanges = data
+      .filter((item) => item.trade_code === selectedTradeCode)
+      .map((item) => parseFloat(item.close));
+
+    const increases = priceChanges.filter(
+      (value, index, array) => value > array[index - 1]
+    );
+    const decreases = priceChanges.filter(
+      (value, index, array) => value < array[index - 1]
+    );
+    const noChange = priceChanges.filter(
+      (value, index, array) => value === array[index - 1]
+    );
+
+    if (pieChartInstance) pieChartInstance.destroy();
+
+    const pieCtx = document.getElementById("pieChart").getContext("2d");
+    const newPieChart = new Chart(pieCtx, {
+      type: "pie",
+      data: {
+        labels: ["Increases", "Decreases", "No Change"],
+        datasets: [
+          {
+            data: [increases.length, decreases.length, noChange.length],
+            backgroundColor: ["#34D399", "#EF4444", "#F59E0B"],
+            borderColor: "#fff",
+            borderWidth: 1,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: "top",
+          },
+        },
+      },
+    });
+
+    setPieChartInstance(newPieChart);
+  }, [data, selectedTradeCode]);
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-6 space-y-8">
+      <h1 className="text-5xl font-extrabold text-gray-900 mb-6">
+        Select Trade Code
+      </h1>
+
+      <select
+        value={selectedTradeCode}
+        onChange={(e) => setSelectedTradeCode(e.target.value)}
+        className="px-6 py-3 rounded-lg border-2 border-gray-300 focus:ring-4 focus:ring-blue-500 text-gray-800 bg-white w-full max-w-lg"
+      >
+        {[...new Set(data.map((item) => item.trade_code))].map((code) => (
+          <option key={code} value={code}>
+            {code}
+          </option>
+        ))}
+      </select>
+
+      <div className="flex w-full max-w-6xl space-x-8">
+        <div className="flex-1 bg-white shadow-lg rounded-lg p-6">
+          <canvas id="myChart"></canvas>
+        </div>
+
+        <div className="flex-1 bg-white shadow-lg rounded-lg p-6">
+          <canvas id="pieChart"></canvas>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default App;

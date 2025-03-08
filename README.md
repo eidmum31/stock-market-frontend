@@ -1,4 +1,4 @@
-readme_content = """# Project Title
+#### Stock Market Application
 
 ## 📖Overview
 

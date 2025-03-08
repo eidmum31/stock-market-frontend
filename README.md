@@ -2,7 +2,7 @@
 
 ## 📖Overview
 
-This project focuses on a crud application in which users can edit different trades. Also difeerent bar and charts are used to visualise the trade informations\*\*.
+This project focuses on a crud application in which users can edit different trades. Also difeerent bar and charts are used to visualise the trade informations.
 
 ## 🚀 What I Learned
 

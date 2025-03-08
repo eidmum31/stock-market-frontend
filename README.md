@@ -1,4 +1,4 @@
-#### Stock Market Application
+# Stock Market Application
 
 ## 📖Overview
 

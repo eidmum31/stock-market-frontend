@@ -18,10 +18,10 @@ This project focuses on a crud application in which users can edit different tra
 
 ## 🚀 Backend
 
-- **Backend Link:** [Live Link]([#](https://stock-market-backend-fpzz.onrender.com/stocks))  
+- **Backend Link:** [Live Link]([[#](https://stock-market-backend-fpzz.onrender.com/stocks)](https://stock-market-backend-fpzz.onrender.com/stocks))  
   
 
-- **Backend GitHub Repository:** [Github Link]([#](https://github.com/eidmum31/stock-market-backend))  
+- **Backend GitHub Repository:** [Github Link]([[#](https://github.com/eidmum31/stock-market-backend)](https://github.com/eidmum31/stock-market-backend))  
   
 
 ## How to Run the Project

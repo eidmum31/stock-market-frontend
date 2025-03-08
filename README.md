@@ -13,7 +13,7 @@ This project focuses on a crud application in which users can edit different tra
 ## ⚠️ Challenges Faced
 
 - 💻 **CORS:** The data was not loading in the final website. What i initially thought due to large data was not the case. It was due to cors origin policy.
-- 🧹 **Deployment:** One thing that is not still solved which is not in my hand is that render has a **1-1.30sec** delay in the server for data fetching if the server was idle for more than 20 minutes. So please refres the live link or the bakend api harder for sometimes when checking.
+- 🧹 **Deployment:** One thing that is not still solved which is not in my hand is that render has a **1-1.30sec** delay in the server for data fetching if the server was idle for more than 20 minutes. So please refresh the live link or the bakend api harder for sometimes when checking.
 
 ## How to Run the Project
 

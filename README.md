@@ -1,12 +1,30 @@
-# React + Vite
+readme_content = """# Project Title
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 📖Overview
 
-Currently, two official plugins are available:
+This project focuses on a crud application in which users can edit different trades. Also difeerent bar and charts are used to visualise the trade informations\*\*.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 What I Learned
 
-## Expanding the ESLint configuration
+- ✅ Implementing **charts and graphs in react**.
+- 🎯 Making the Backend in fastAPi **fastAPi**.
+- 🛠 How to host a presql **presql database online**.
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## ⚠️ Challenges Faced
+
+- 💻 **CORS:** The data was not loading in the final website. What i initially thought due to large data was not the case. It was due to cors origin policy.
+- 🧹 **Deployment:** One thing that is not still solved which is not in my hand is that render has a **1-1.30sec** delay in the server for data fetching if the server was idle for more than 20 minutes. So please refres the live link or the bakend api harder for sometimes when checking.
+
+## How to Run the Project
+
+```bash
+# Clone the repository
+git clone https://github.com/your-repo-name.git
+
+# Install dependencies
+cd stock-market-frontend
+npm install
+
+# Run the script
+npm run dev
+```
